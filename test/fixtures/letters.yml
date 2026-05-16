@@ -1,0 +1,32 @@
+vowel_a:
+  tamil: அ
+  roman: a
+  kind: vowel
+  position: 1
+
+vowel_aa:
+  tamil: ஆ
+  roman: aa
+  kind: vowel
+  position: 2
+
+consonant_ka:
+  tamil: க்
+  roman: k
+  kind: consonant
+  letter_class: vallinam
+  position: 13
+
+consonant_ma:
+  tamil: ம்
+  roman: m
+  kind: consonant
+  letter_class: mellinam
+  position: 19
+
+consonant_va:
+  tamil: வ்
+  roman: v
+  kind: consonant
+  letter_class: idaiyinam
+  position: 25

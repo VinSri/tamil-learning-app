@@ -1,0 +1,4 @@
+vino_first_letter:
+  user: vino
+  achievement: first_letter
+  unlocked_at: <%= Time.now %>

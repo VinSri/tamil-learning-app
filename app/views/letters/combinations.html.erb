@@ -1,0 +1,226 @@
+<% content_for :title, "உயிர்மெய் · Compound Letters" %>
+<% content_for :head do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+  <style>.tamil { font-family: 'Noto Sans Tamil', sans-serif; }</style>
+<% end %>
+
+<!-- Header -->
+<div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+  <div>
+    <div class="flex items-center gap-3">
+      <%= link_to "← Alphabet", letters_path, class: "text-sm text-gray-400 hover:text-red-700" %>
+    </div>
+    <h1 class="text-2xl font-bold text-gray-800 mt-1">உயிர்மெய் எழுத்துக்கள்</h1>
+    <p class="text-gray-500 text-sm mt-0.5">216 compound letters — each consonant combined with each vowel</p>
+  </div>
+  <button onclick="startDrill()"
+    class="bg-red-700 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition">
+    Drill Mode
+  </button>
+</div>
+
+<!-- Legend -->
+<div class="flex flex-wrap gap-x-5 gap-y-2 mb-4 text-xs font-medium text-gray-700">
+  <span><span class="inline-block w-3 h-3 rounded-sm bg-red-200 border border-red-500 align-middle mr-1.5" aria-hidden="true"></span> Hard (வல்லினம்)</span>
+  <span><span class="inline-block w-3 h-3 rounded-sm bg-teal-200 border border-teal-600 align-middle mr-1.5" aria-hidden="true"></span> Soft (மெல்லினம்)</span>
+  <span><span class="inline-block w-3 h-3 rounded-sm bg-violet-200 border border-violet-600 align-middle mr-1.5" aria-hidden="true"></span> Middle (இடையினம்)</span>
+</div>
+
+<!-- Grid: borders use gray-400 so cell edges meet WCAG non-text contrast on white -->
+<div class="overflow-x-auto mb-10 rounded-lg border-2 border-gray-400 bg-white shadow-sm">
+  <table class="border-collapse text-center text-sm w-full min-w-[32rem]" aria-label="Compound letters. Each row is a consonant; each column is a vowel.">
+    <!-- Vowel header row -->
+    <thead>
+      <tr>
+        <th scope="col" class="w-12 min-w-[3rem] px-2 py-2 text-gray-600 text-xs font-semibold border border-gray-400 bg-gray-200">
+          <span class="sr-only">Consonant</span>
+        </th>
+        <% @vowels.each do |vow| %>
+          <th scope="col" class="px-2 py-2 border border-gray-400 bg-gray-200 text-gray-800">
+            <div class="tamil text-base font-bold text-amber-700"><%= vow[:tamil] %></div>
+            <div class="text-xs text-gray-600 font-medium"><%= vow[:roman] %></div>
+          </th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @grid.each do |row| %>
+        <%
+          con = row[:consonant]
+          color = CompoundLetters::CLASS_COLORS[con[:klass]]
+          # Row + header styling by consonant class (hard / soft / middle)
+          klass = con[:klass].to_s
+          row_class, th_extra, td_hover = case klass
+          when "vallinam"
+            ["bg-red-50/95 hover:bg-red-100/90", "bg-red-100 border-l-4 border-l-red-600", "hover:bg-red-200/80"]
+          when "mellinam"
+            ["bg-teal-50/95 hover:bg-teal-100/90", "bg-teal-100 border-l-4 border-l-teal-600", "hover:bg-teal-200/80"]
+          when "idaiyinam"
+            ["bg-violet-50/95 hover:bg-violet-100/90", "bg-violet-100 border-l-4 border-l-violet-600", "hover:bg-violet-200/80"]
+          else
+            ["bg-gray-50 hover:bg-gray-100/90", "bg-gray-200", "hover:bg-gray-200"]
+          end
+        %>
+        <tr class="<%= row_class %> transition-colors">
+          <!-- Consonant label -->
+          <th scope="row" class="px-2 py-1.5 border border-gray-400 font-normal align-middle <%= th_extra %>">
+            <div class="tamil text-base font-bold <%= color %>"><%= con[:tamil] %></div>
+            <div class="text-xs text-gray-700 font-medium"><%= con[:roman] %></div>
+          </th>
+          <!-- Compound cells -->
+          <% row[:cells].each do |cell| %>
+            <td class="border border-gray-400 cursor-pointer <%= td_hover %> transition p-0 align-middle"
+                onclick="showDetail('<%= cell[:tamil] %>', '<%= cell[:roman] %>')"
+                title="<%= cell[:roman] %> — <%= con[:roman] %> + vowel">
+              <div class="tamil text-lg font-semibold text-gray-900 px-2 py-2 leading-none"><%= cell[:tamil] %></div>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Detail panel (shown on cell click) -->
+<div id="detailPanel" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl p-6 z-40">
+  <div class="max-w-6xl mx-auto flex items-center gap-8">
+    <div id="detailTamil" class="tamil text-7xl font-bold text-red-700 leading-none w-28 text-center"></div>
+    <div class="flex-1">
+      <div id="detailRoman" class="text-2xl text-gray-500 font-medium mb-2"></div>
+      <div class="text-sm text-gray-400">consonant + vowel combination</div>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="speakDetail()" class="text-sm text-gray-400 hover:text-red-700 px-4 py-2 border border-gray-200 rounded-lg transition">🔊 Hear</button>
+      <button onclick="closeDetail()" class="text-sm text-gray-400 hover:text-gray-700 px-4 py-2 border border-gray-200 rounded-lg transition">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drill mode overlay -->
+<div id="drillOverlay" class="hidden fixed inset-0 bg-gray-900 z-50 flex flex-col items-center justify-center">
+  <button onclick="exitDrill()" class="absolute top-5 right-6 text-gray-400 hover:text-white text-sm">✕ Exit</button>
+
+  <div class="text-gray-400 text-sm mb-8" id="drillProgress">0 / 10</div>
+
+  <!-- Show letter, guess romanization -->
+  <div id="drillCard" class="">
+    <div class="tamil text-9xl font-bold text-white text-center mb-10 leading-none" id="drillLetter"></div>
+    <div class="grid grid-cols-2 gap-4 w-80" id="drillOptions"></div>
+  </div>
+
+  <!-- Feedback -->
+  <div id="drillFeedback" class="hidden mt-8 text-center">
+    <div id="feedbackText" class="text-3xl font-bold mb-3"></div>
+    <div id="feedbackSub" class="text-gray-400 text-sm"></div>
+    <button onclick="nextDrillCard()" class="mt-6 bg-white text-gray-900 px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition">
+      Next →
+    </button>
+  </div>
+
+  <!-- Score screen -->
+  <div id="drillScore" class="hidden text-center">
+    <div class="text-6xl font-bold text-white mb-4" id="scoreText"></div>
+    <div class="text-gray-400 mb-8">letters practised</div>
+    <button onclick="startDrill()" class="bg-red-600 text-white px-8 py-3 rounded-xl font-semibold hover:opacity-90 transition mr-3">Try again</button>
+    <button onclick="exitDrill()" class="text-gray-400 hover:text-white px-6 py-3 rounded-xl border border-gray-700 transition">Done</button>
+  </div>
+</div>
+
+<script>
+  const allCells = <%= raw @cells_json %>;
+  let detailCurrentLetter = '';
+
+  function showDetail(tamil, roman) {
+    detailCurrentLetter = tamil;
+    document.getElementById('detailTamil').textContent = tamil;
+    document.getElementById('detailRoman').textContent  = roman;
+    document.getElementById('detailPanel').classList.remove('hidden');
+  }
+
+  function closeDetail() {
+    document.getElementById('detailPanel').classList.add('hidden');
+  }
+
+  function speakDetail() { speak(detailCurrentLetter); }
+
+  // ── Drill mode ──────────────────────────────────────────────────────────
+  const DRILL_COUNT = 10;
+  let drillQueue = [], drillIndex = 0, drillCorrect = 0, currentCard = null;
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startDrill() {
+    closeDetail();
+    drillQueue   = shuffle(allCells).slice(0, DRILL_COUNT);
+    drillIndex   = 0;
+    drillCorrect = 0;
+    document.getElementById('drillOverlay').classList.remove('hidden');
+    document.getElementById('drillScore').classList.add('hidden');
+    showDrillCard();
+  }
+
+  function showDrillCard() {
+    document.getElementById('drillFeedback').classList.add('hidden');
+    document.getElementById('drillCard').classList.remove('hidden');
+    document.getElementById('drillProgress').textContent = `${drillIndex + 1} / ${DRILL_COUNT}`;
+
+    currentCard = drillQueue[drillIndex];
+    document.getElementById('drillLetter').textContent = currentCard.tamil;
+
+    // 4 options: 1 correct + 3 random wrong
+    const others  = shuffle(allCells.filter(c => c.roman !== currentCard.roman)).slice(0, 3);
+    const options = shuffle([currentCard, ...others]);
+
+    document.getElementById('drillOptions').innerHTML = options.map(opt => `
+      <button onclick="checkAnswer('${opt.roman}', this)"
+        class="drill-opt bg-gray-800 hover:bg-gray-700 text-white text-lg font-semibold py-4 rounded-xl transition">
+        ${opt.roman}
+      </button>
+    `).join('');
+  }
+
+  function checkAnswer(roman, btn) {
+    document.querySelectorAll('.drill-opt').forEach(b => b.disabled = true);
+    const correct = roman === currentCard.roman;
+    if (correct) {
+      drillCorrect++;
+      btn.classList.add('bg-green-600');
+    } else {
+      btn.classList.add('bg-red-600');
+      document.querySelectorAll('.drill-opt').forEach(b => {
+        if (b.textContent.trim() === currentCard.roman) b.classList.add('bg-green-600');
+      });
+    }
+
+    document.getElementById('drillCard').classList.add('hidden');
+    document.getElementById('drillFeedback').classList.remove('hidden');
+    document.getElementById('feedbackText').textContent  = correct ? 'Correct!' : 'Not quite';
+    document.getElementById('feedbackText').className    = 'text-3xl font-bold mb-3 ' + (correct ? 'text-green-400' : 'text-red-400');
+    document.getElementById('feedbackSub').textContent   = `${currentCard.tamil} = ${currentCard.roman}`;
+    speak(currentCard.tamil);
+  }
+
+  function nextDrillCard() {
+    drillIndex++;
+    if (drillIndex >= DRILL_COUNT) {
+      document.getElementById('drillFeedback').classList.add('hidden');
+      document.getElementById('drillScore').classList.remove('hidden');
+      document.getElementById('scoreText').textContent = `${drillCorrect} / ${DRILL_COUNT}`;
+    } else {
+      showDrillCard();
+    }
+  }
+
+  function exitDrill() {
+    document.getElementById('drillOverlay').classList.add('hidden');
+  }
+</script>

@@ -1,0 +1,27 @@
+<%= turbo_stream.replace "learned_btn" do %>
+  <% if @learned %>
+    <button id="learned_btn" onclick="toggleLearned()"
+      class="inline-flex items-center gap-1.5 text-sm text-green-600 transition">
+      ✓ Learned
+    </button>
+  <% else %>
+    <button id="learned_btn" onclick="toggleLearned()"
+      class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-green-600 transition">
+      Mark as learned
+    </button>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "letter_#{@letter.id}_check" do %>
+  <span id="letter_<%= @letter.id %>_check"
+    class="text-xs text-green-400 <%= @learned ? '' : 'invisible' %>">✓</span>
+<% end %>
+
+<%= turbo_stream.replace "progress_count" do %>
+  <span id="progress_count" class="font-semibold text-gray-700"><%= @total %></span>
+<% end %>
+
+<%= turbo_stream.replace "progress_bar" do %>
+  <div id="progress_bar" class="bg-green-400 h-1.5 rounded-full transition-all"
+    style="width:<%= @total_all > 0 ? [(@total * 100 / @total_all), 100].min : 0 %>%"></div>
+<% end %>

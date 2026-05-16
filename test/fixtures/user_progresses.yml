@@ -1,0 +1,10 @@
+vino_progress:
+  user: vino
+  streak_days: 3
+  study_time_minutes: 15
+  last_study_date: <%= Date.yesterday %>
+
+guest_progress:
+  user: guest
+  streak_days: 0
+  study_time_minutes: 0

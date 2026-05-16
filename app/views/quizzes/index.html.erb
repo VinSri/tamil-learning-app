@@ -1,0 +1,69 @@
+<% content_for :title, "Quiz" %>
+
+<div class="mb-6">
+  <h1 class="text-3xl font-bold text-gray-800">Quiz</h1>
+  <p class="text-gray-500 mt-1">Test your Tamil knowledge</p>
+</div>
+
+<!-- Level Selector -->
+<div class="flex gap-3 mb-8">
+  <% ['beginner', 'intermediate', 'advanced'].each do |level| %>
+    <%= link_to quizzes_path(level: level),
+          class: "px-6 py-3 rounded-xl font-medium transition #{@level == level ? 'bg-red-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-red-300'}" do %>
+      <%= level.capitalize %>
+      <span class="text-xs opacity-70 ml-1">(<%= QuizQuestion.by_level(level).count %> Qs)</span>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Quiz Form -->
+<%= form_with url: submit_quizzes_path, method: :post, local: true do |f| %>
+  <%= f.hidden_field :level, value: @level %>
+
+  <div class="space-y-6">
+    <% @questions.each_with_index do |question, i| %>
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div class="flex items-start gap-3 mb-4">
+          <span class="w-7 h-7 rounded-full bg-red-700 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+            <%= i + 1 %>
+          </span>
+          <p class="font-semibold text-gray-800 text-lg"><%= question.question %></p>
+        </div>
+
+        <input type="hidden" name="answers[<%= question.id %>]" id="answer_<%= question.id %>" value="">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <% question.options.each_with_index do |option, opt_i| %>
+            <button type="button"
+              onclick="selectAnswer(<%= question.id %>, <%= opt_i %>, this)"
+              class="option-btn text-left px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-red-300 transition text-gray-700">
+              <span class="font-medium text-gray-400 mr-2"><%= ('A'..'Z').to_a[opt_i] %>.</span>
+              <%= option %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="mt-8 text-center">
+    <%= f.submit 'Submit Quiz', class: "bg-red-700 text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-red-800 cursor-pointer transition" %>
+  </div>
+<% end %>
+
+<script>
+  function selectAnswer(questionId, optionIndex, btn) {
+    // Clear previous selection for this question
+    btn.closest('.grid').querySelectorAll('.option-btn').forEach(b => {
+      b.classList.remove('border-red-700', 'bg-red-50', 'text-red-700');
+      b.classList.add('border-gray-200', 'text-gray-700');
+    });
+
+    // Highlight selected
+    btn.classList.remove('border-gray-200', 'text-gray-700');
+    btn.classList.add('border-red-700', 'bg-red-50', 'text-red-700');
+
+    // Set hidden input
+    document.getElementById('answer_' + questionId).value = optionIndex;
+  }
+</script>

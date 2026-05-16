@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* Classes used from Ruby hashes, data-* attributes, or JS classList — not always visible to static scan */
+@source "../../models/**/*.rb";
+@source inline(
+  "text-amber-500 text-amber-600 text-amber-700 text-teal-500 text-teal-600 text-violet-400 text-violet-500 text-violet-700 text-red-400 text-red-500 text-green-500 text-green-600 ring-amber-500 ring-2 ring-offset-2 border-teal-200 border-teal-600 hover:border-teal-400 border-violet-200 hover:border-violet-400"
+);
+
+@theme {
+  --color-brand:   #03AED2; /* sky blue — nav, buttons, progress */
+  --color-gold:    #F8DE22; /* yellow — streaks, achievements */
+  --color-flame:   #F45B26; /* orange — CTAs */
+  --color-premium: #D12052; /* crimson — premium, Scholar/Sangam */
+}

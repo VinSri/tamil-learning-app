@@ -1,0 +1,202 @@
+<% content_for :title, @lesson.title %>
+
+<!-- Top nav -->
+<div class="mb-6 flex items-center justify-between">
+  <%= link_to '← All Lessons', grammar_lessons_path, class: "text-sm text-gray-400 hover:text-red-700" %>
+  <span class="text-sm text-gray-400">Lesson <%= @lesson.position %></span>
+</div>
+
+<!-- Lesson header -->
+<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-6">
+  <div class="flex items-center gap-3 mb-4">
+    <span class="text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full
+      <%= @lesson.level == 'beginner' ? 'bg-green-50 text-green-700' : @lesson.level == 'intermediate' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' %>">
+      <%= @lesson.level.capitalize %>
+    </span>
+    <% if @completed %>
+      <span class="text-xs font-semibold text-green-700 bg-green-50 px-3 py-1 rounded-full">✓ Completed</span>
+    <% end %>
+  </div>
+  <h1 class="text-2xl font-bold text-gray-800 mb-4"><%= @lesson.title %></h1>
+  <p class="text-gray-600 leading-relaxed"><%= @lesson.content %></p>
+</div>
+
+<!-- Rules -->
+<h2 class="text-lg font-bold text-gray-700 mb-4">Rules & Examples</h2>
+
+<div class="space-y-4 mb-8">
+  <% @lesson.grammar_rules.each_with_index do |rule, i| %>
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-start gap-4">
+        <div class="w-8 h-8 rounded-full bg-red-700 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+          <%= i + 1 %>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-semibold text-gray-800 mb-2 leading-snug"><%= rule.rule_text %></h3>
+          <p class="text-gray-500 text-sm mb-4 leading-relaxed"><%= rule.explanation %></p>
+
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1">
+                <div class="text-xl font-bold text-red-700 mb-1 leading-relaxed"><%= rule.tamil_example %></div>
+                <div class="text-gray-500 text-sm italic"><%= rule.english_translation %></div>
+              </div>
+              <button onclick="speak('<%= j rule.tamil_example.split('|').first.strip %>')"
+                class="text-gray-300 hover:text-red-600 transition text-xl flex-shrink-0 mt-1" title="Hear pronunciation">
+                🔊
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Practice exercises -->
+<% unless @completed %>
+  <div id="practiceSection">
+    <h2 class="text-lg font-bold text-gray-700 mb-4">Practice</h2>
+    <p class="text-sm text-gray-400 mb-5">Answer all questions to complete this lesson.</p>
+
+    <div id="exerciseCards" class="space-y-6 mb-8"></div>
+
+    <div id="practiceResult" class="hidden mb-8 bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
+      <div class="text-2xl font-bold text-green-700 mb-1">Well done!</div>
+      <div class="text-sm text-green-600">You've practised all the rules in this lesson.</div>
+    </div>
+
+    <div class="text-center mb-8">
+      <button id="completeBtn" onclick="markComplete(<%= @lesson.id %>)" disabled
+        class="bg-green-600 text-white px-8 py-3 rounded-xl font-semibold transition opacity-40 cursor-not-allowed">
+        ✓ Mark Lesson as Complete
+      </button>
+    </div>
+  </div>
+<% end %>
+
+<!-- Prev / Next navigation -->
+<div class="flex items-center justify-between border-t border-gray-100 pt-6">
+  <div>
+    <% if @prev_lesson %>
+      <%= link_to grammar_lesson_path(@prev_lesson), class: "group flex items-center gap-3 text-gray-500 hover:text-red-700 transition" do %>
+        <span class="text-xl">←</span>
+        <div>
+          <div class="text-xs text-gray-400 group-hover:text-red-400">Previous</div>
+          <div class="text-sm font-medium truncate max-w-[200px]"><%= @prev_lesson.title %></div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="text-right">
+    <% if @next_lesson %>
+      <%= link_to grammar_lesson_path(@next_lesson), class: "group flex items-center gap-3 text-gray-500 hover:text-red-700 transition" do %>
+        <div>
+          <div class="text-xs text-gray-400 group-hover:text-red-400 text-right">Next</div>
+          <div class="text-sm font-medium truncate max-w-[200px]"><%= @next_lesson.title %></div>
+        </div>
+        <span class="text-xl">→</span>
+      <% end %>
+    <% else %>
+      <%= link_to quizzes_path, class: "group flex items-center gap-3 text-gray-500 hover:text-red-700 transition" do %>
+        <div>
+          <div class="text-xs text-gray-400 group-hover:text-red-400 text-right">You've reached the end!</div>
+          <div class="text-sm font-medium">Test your knowledge →</div>
+        </div>
+        <span class="text-xl">🎯</span>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // ── Practice exercises ───────────────────────────────────────────────────
+  const exercises   = <%= raw @exercises_json %>;
+  let answeredCount = 0;
+
+  function buildExercises() {
+    const container = document.getElementById('exerciseCards');
+    if (!container || !exercises.length) {
+      enableComplete();
+      return;
+    }
+
+    exercises.forEach((ex, idx) => {
+      const card = document.createElement('div');
+      card.id        = `ex-${idx}`;
+      card.className = 'bg-white rounded-2xl p-6 shadow-sm border border-gray-100';
+      card.innerHTML = `
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Question ${idx + 1} of ${exercises.length}</p>
+        <p class="text-lg font-bold text-gray-800 mb-5">${ex.question}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="opts-${idx}">
+          ${ex.options.map((opt, oi) => `
+            <button onclick="checkAnswer(${idx}, ${oi})"
+              class="ex-opt text-left px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-700 hover:border-red-300 hover:bg-red-50 transition">
+              ${opt}
+            </button>
+          `).join('')}
+        </div>
+        <div id="fb-${idx}" class="hidden mt-4 text-sm rounded-lg px-4 py-3"></div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function checkAnswer(exIdx, optIdx) {
+    const ex      = exercises[exIdx];
+    const opts    = document.querySelectorAll(`#opts-${exIdx} .ex-opt`);
+    const fb      = document.getElementById(`fb-${exIdx}`);
+    const correct = optIdx === ex.correct;
+
+    opts.forEach(b => b.disabled = true);
+    opts[ex.correct].classList.add('border-green-400', 'bg-green-50', 'text-green-700');
+
+    if (!correct) {
+      opts[optIdx].classList.add('border-red-300', 'bg-red-50', 'text-red-600');
+    }
+
+    fb.classList.remove('hidden');
+    fb.className = `mt-4 text-sm rounded-lg px-4 py-3 ${correct ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`;
+    fb.textContent = correct
+      ? `Correct! ${ex.explanation}`
+      : `The correct answer is: ${ex.options[ex.correct]}. ${ex.explanation}`;
+
+    if (correct) {
+      answeredCount++;
+      if (answeredCount >= exercises.length) {
+        document.getElementById('practiceResult').classList.remove('hidden');
+        enableComplete();
+      }
+    }
+  }
+
+  function enableComplete() {
+    const btn = document.getElementById('completeBtn');
+    if (!btn) return;
+    btn.disabled = false;
+    btn.classList.remove('opacity-40', 'cursor-not-allowed');
+  }
+
+  document.addEventListener('DOMContentLoaded', buildExercises);
+
+  function markComplete(lessonId) {
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    fetch(`/grammar_lessons/${lessonId}/complete`, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+    })
+    .then(r => r.json())
+    .then(() => {
+      btn.textContent = '✓ Completed!';
+      btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+      btn.classList.add('bg-green-100', 'text-green-700', 'cursor-default');
+      <% if @next_lesson %>
+        setTimeout(() => { window.location.href = '<%= grammar_lesson_path(@next_lesson) %>'; }, 600);
+      <% end %>
+    });
+  }
+</script>

@@ -1,0 +1,23 @@
+hello:
+  tamil: வணக்கம்
+  english: Hello
+  pronunciation: vanakkam
+  category: basics
+
+thank_you:
+  tamil: நன்றி
+  english: Thank you
+  pronunciation: nandri
+  category: basics
+
+one:
+  tamil: ஒன்று
+  english: One
+  pronunciation: ondru
+  category: numbers
+
+red:
+  tamil: சிவப்பு
+  english: Red
+  pronunciation: sivappu
+  category: colors

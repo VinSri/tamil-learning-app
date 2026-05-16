@@ -1,0 +1,13 @@
+first_letter:
+  name: First Letter
+  description: Learned your first letter
+  icon: "🔤"
+  condition_key: letters_learned
+  threshold: 1
+
+ten_letters:
+  name: Letter Master
+  description: Learned 10 letters
+  icon: "📚"
+  condition_key: letters_learned
+  threshold: 10

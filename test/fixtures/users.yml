@@ -1,0 +1,11 @@
+vino:
+  name: Vino
+  email: vino@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  level: beginner
+
+guest:
+  name: Guest User
+  email: guest@example.com
+  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  level: beginner
