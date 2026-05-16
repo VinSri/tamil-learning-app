@@ -1,24 +1,16 @@
-# README
+# tamil-learning-app
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Open source Tamil language learning app with modern and classical Tamil support.
 
-Things you may want to cover:
+## Setup
 
-* Ruby version
+* Ruby version — see `.ruby-version`
+* PostgreSQL
+* `bundle install`
+* Copy `config/database.yml` locally (not in git)
+* `bin/rails db:setup`
+* `bin/dev`
 
-* System dependencies
+## Configuration
 
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Sensitive files are gitignored: `config/database.yml`, `config/credentials.yml.enc`, `config/master.key`, `.kamal/secrets`.
