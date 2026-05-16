@@ -1,0 +1,36 @@
+<% content_for :title, "Grammar" %>
+
+<div class="mb-6">
+  <h1 class="text-3xl font-bold text-gray-800">Grammar Lessons</h1>
+  <p class="text-gray-500 mt-1">From basic Tamil to classical Sangam grammar — based on நன்னூல் (Nannūl)</p>
+</div>
+
+<% @lessons_by_level.each do |level, lessons| %>
+  <div class="mb-10">
+    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+      <span class="<%= level == 'classical' ? 'text-amber-600' : level == 'intermediate' ? 'text-blue-600' : 'text-green-600' %>">
+        <%= level == 'classical' ? '📜' : level == 'intermediate' ? '📘' : '🌱' %>
+      </span>
+      <%= level.capitalize %>
+      <span class="text-gray-300 font-normal">(<%= lessons.count %> lessons)</span>
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-3">
+      <% lessons.each do |lesson| %>
+        <% done = @completed_ids.include?(lesson.id) %>
+        <%= link_to grammar_lesson_path(lesson), class: "bg-white rounded-2xl p-5 shadow-sm border-2 #{done ? 'border-green-300' : 'border-gray-100'} hover:border-red-300 hover:shadow-md transition group flex items-start gap-4" do %>
+          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold
+            <%= done ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-red-100 group-hover:text-red-700' %>">
+            <%= done ? '✓' : lesson.position %>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-gray-800 group-hover:text-red-700 leading-snug"><%= lesson.title %></h3>
+            <p class="text-gray-400 text-sm mt-1 line-clamp-1"><%= lesson.content&.truncate(90) %></p>
+            <div class="text-xs text-gray-300 mt-2"><%= lesson.grammar_rules.count %> rules</div>
+          </div>
+          <span class="text-gray-200 group-hover:text-red-300 text-lg flex-shrink-0">→</span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

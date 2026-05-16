@@ -1,0 +1,76 @@
+<% content_for :title, "தமிழ் கற்போம் — Learn Tamil Free" %>
+
+<!-- Hero -->
+<div class="text-center py-20">
+  <h1 class="text-6xl font-bold text-brand mb-4">தமிழ் கற்போம்</h1>
+  <p class="text-2xl text-gray-700 mb-4">Learn Tamil — From Beginner to Classical</p>
+  <p class="text-gray-500 max-w-2xl mx-auto mb-10 text-lg">
+    The free, comprehensive Tamil learning platform. Master modern spoken Tamil
+    and unlock the world's oldest classical literature — Tolkāppiyam, Thirukkural, and Sangam poetry.
+  </p>
+  <div class="flex justify-center gap-4">
+    <%= link_to 'Start Learning Free', new_user_registration_path, class: "bg-flame text-white px-8 py-4 rounded-xl text-lg font-semibold hover:opacity-90 transition" %>
+    <%= link_to 'Sign In', new_user_session_path, class: "border border-gray-300 text-gray-700 px-8 py-4 rounded-xl text-lg hover:border-brand hover:text-brand transition" %>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-10 border-t border-b border-gray-200 my-10">
+  <div class="text-center">
+    <div class="text-3xl font-bold text-brand"><%= @stats[:letters] %></div>
+    <div class="text-gray-500 text-sm mt-1">Letters</div>
+  </div>
+  <div class="text-center">
+    <div class="text-3xl font-bold text-brand"><%= @stats[:words] %>+</div>
+    <div class="text-gray-500 text-sm mt-1">Vocabulary Words</div>
+  </div>
+  <div class="text-center">
+    <div class="text-3xl font-bold text-brand"><%= @stats[:lessons] %></div>
+    <div class="text-gray-500 text-sm mt-1">Grammar Lessons</div>
+  </div>
+  <div class="text-center">
+    <div class="text-3xl font-bold text-brand">100%</div>
+    <div class="text-gray-500 text-sm mt-1">Free Forever</div>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="grid md:grid-cols-3 gap-8 py-10">
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">🔤</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Tamil Alphabet</h3>
+    <p class="text-gray-500">Learn all 12 vowels and 18 consonants with pronunciation guides. Track your progress as you go.</p>
+  </div>
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">📚</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Vocabulary</h3>
+    <p class="text-gray-500">116+ words across 11 categories — family, food, numbers, colors, nature and more.</p>
+  </div>
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">📖</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Grammar</h3>
+    <p class="text-gray-500">Structured lessons from basic sentence structure to classical Tamil grammar from Tolkāppiyam.</p>
+  </div>
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">🎯</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Quizzes</h3>
+    <p class="text-gray-500">Test yourself with beginner, intermediate, and advanced quizzes. Track accuracy and improvement.</p>
+  </div>
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">📜</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Classical Tamil</h3>
+    <p class="text-gray-500">Read Thirukkural couplets, Sangam poetry, and Tolkāppiyam — with English translations.</p>
+  </div>
+  <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+    <div class="text-4xl mb-4">🏆</div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Achievements</h3>
+    <p class="text-gray-500">Earn badges as you learn. Build streaks and track your total study time.</p>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="text-center py-16 bg-brand rounded-3xl text-white mt-10">
+  <h2 class="text-3xl font-bold mb-4">Ready to learn Tamil?</h2>
+  <p class="text-white/80 mb-8 text-lg">Join learners worldwide. Free forever. No credit card needed.</p>
+  <%= link_to 'Create Free Account', new_user_registration_path, class: "bg-white text-brand px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition" %>
+</div>

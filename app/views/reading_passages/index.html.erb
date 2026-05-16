@@ -1,0 +1,31 @@
+<% content_for :title, "Reading" %>
+
+<div class="mb-6">
+  <h1 class="text-3xl font-bold text-gray-800">Reading Passages</h1>
+  <p class="text-gray-500 mt-1">Graded Tamil texts with English translations</p>
+</div>
+
+<% @passages_by_level.each do |level, passages| %>
+  <div class="mb-8">
+    <h2 class="text-lg font-bold text-gray-600 uppercase tracking-wide mb-4 flex items-center gap-2">
+      <span><%= level == 'classical' ? '📜' : '📄' %></span>
+      <%= level.capitalize %>
+    </h2>
+    <div class="grid md:grid-cols-2 gap-4">
+      <% passages.each do |passage| %>
+        <%= link_to reading_passage_path(passage), class: "bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:border-red-300 hover:shadow-md transition group" do %>
+          <div class="flex items-start justify-between">
+            <div>
+              <h3 class="font-bold text-gray-800 group-hover:text-red-700"><%= passage.title %></h3>
+              <p class="text-gray-500 text-sm mt-2 line-clamp-3"><%= passage.content&.truncate(100) %></p>
+            </div>
+            <span class="text-gray-300 group-hover:text-red-400 text-xl ml-4">→</span>
+          </div>
+          <div class="mt-4">
+            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full"><%= level.capitalize %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

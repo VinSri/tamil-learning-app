@@ -1,0 +1,45 @@
+<%
+  if learned
+    text_col   = 'text-green-600'
+    border_col = 'border-green-300 bg-green-50'
+  else
+    case letter.letter_class
+    when 'vallinam'
+      text_col   = 'text-red-500'
+      border_col = 'border-red-200 hover:border-red-400 bg-white'
+    when 'mellinam'
+      text_col   = 'text-teal-600'
+      border_col = 'border-teal-200 hover:border-teal-400 bg-white'
+    when 'idaiyinam'
+      text_col   = 'text-violet-500'
+      border_col = 'border-violet-200 hover:border-violet-400 bg-white'
+    else
+      text_col   = 'text-amber-600'
+      border_col = 'border-amber-200 hover:border-amber-400 bg-white'
+    end
+  end
+%>
+<div class="group flex flex-col items-center rounded-xl border-2 transition-all duration-150 cursor-pointer select-none overflow-hidden <%= border_col %>"
+  data-letter-id="<%= letter.id %>"
+  data-learned="<%= learned %>"
+  onclick="toggleLearned(this)">
+
+  <div class="w-full flex flex-col items-center justify-center py-4 px-2 relative">
+    <span class="check-mark absolute top-1.5 right-2 text-green-500 text-xs font-bold <%= learned ? '' : 'invisible' %>">✓</span>
+    <span class="tamil-letter text-4xl font-bold leading-none mb-1 <%= text_col %>"><%= letter.tamil %></span>
+    <span class="text-xs text-gray-400 font-medium tracking-wide"><%= letter.roman %></span>
+  </div>
+
+  <div class="flex w-full border-t border-gray-100">
+    <button onclick="event.stopPropagation(); speak('<%= letter.tamil %>')"
+      title="Hear"
+      class="flex-1 py-2 text-sm text-gray-300 hover:text-gray-500 hover:bg-gray-50 border-r border-gray-100 transition">
+      🔊
+    </button>
+    <button onclick="event.stopPropagation(); openWritingModal('<%= letter.tamil %>', '<%= letter.roman %>')"
+      title="Practice writing"
+      class="flex-1 py-2 text-sm text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition">
+      ✏️
+    </button>
+  </div>
+</div>

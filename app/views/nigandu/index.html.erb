@@ -1,0 +1,123 @@
+<% content_for :title, "நிகண்டு · Nigandu" %>
+
+<div class="mb-6 flex items-start justify-between flex-wrap gap-4">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">பிங்கல நிகண்டு</h1>
+    <p class="text-gray-500 mt-1">Classical Tamil thesaurus · Browse synonyms by theme</p>
+  </div>
+  <%= form_with url: nigandu_index_path, method: :get, local: true, class: "flex gap-2" do |f| %>
+    <%= f.text_field :q, value: @query, placeholder: "Search word…",
+        class: "border border-gray-200 rounded-lg px-3 py-2 text-sm w-48 focus:outline-none focus:border-red-300" %>
+    <%= f.submit "Search", class: "bg-red-700 text-white text-sm px-4 py-2 rounded-lg hover:opacity-90 cursor-pointer" %>
+  <% end %>
+</div>
+
+<% unless @query.present? %>
+  <!-- Category Tabs -->
+  <div class="flex flex-wrap gap-2 mb-6">
+    <% @categories.each do |cat| %>
+      <%= link_to nigandu_index_path(category: cat),
+            class: "px-4 py-2 rounded-full text-sm font-medium transition #{@category == cat ? 'bg-red-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-red-300'}" do %>
+        <%= @category_labels[cat] || cat.capitalize %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @linked_words_category %>
+    <div class="mb-4 flex items-center gap-2 text-sm text-gray-500">
+      <span>Modern vocabulary for this theme:</span>
+      <%= link_to "Browse #{@linked_words_category.capitalize} words →", words_path(category: @linked_words_category),
+            class: "text-red-700 hover:underline font-medium" %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="mb-4 text-sm text-gray-500">
+    Showing results for <span class="font-semibold text-gray-800">"<%= @query %>"</span>
+    · <%= link_to "Clear", nigandu_index_path, class: "text-red-700 hover:underline" %>
+  </div>
+<% end %>
+
+<!-- Entries Grid -->
+<% if @entries.empty? %>
+  <p class="text-gray-400 text-center py-16">No entries found.</p>
+<% else %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% @entries.each do |entry| %>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:border-red-300 hover:shadow-md transition">
+        <%= link_to nigandu_path(entry), class: "block" do %>
+          <div class="flex items-start justify-between mb-1">
+            <div class="text-2xl font-bold text-red-700 leading-tight"><%= entry.headword.sub(/\s*பெயர்\z/, '') %></div>
+            <span class="text-xs text-gray-400 mt-1">#<%= entry.sutra_number %></span>
+          </div>
+        <% end %>
+
+        <%# English translation — editable for admins %>
+        <% if current_user.admin? %>
+          <div class="flex items-center gap-1 mb-2 group"
+               data-entry-id="<%= entry.id %>"
+               data-update-url="<%= nigandu_path(entry) %>">
+            <span class="english-display text-sm text-gray-500 italic cursor-pointer hover:text-red-600"
+                  onclick="startEdit(this)">
+              <%= entry.english.presence || 'Add translation…' %>
+            </span>
+            <span class="text-gray-300 group-hover:text-gray-400 text-xs cursor-pointer" onclick="startEdit(this.previousElementSibling)">✏️</span>
+          </div>
+        <% elsif entry.english.present? %>
+          <p class="text-sm text-gray-500 italic mb-2"><%= entry.english %></p>
+        <% end %>
+
+        <%= link_to nigandu_path(entry), class: "block" do %>
+          <div class="flex flex-wrap gap-1 mt-2">
+            <% entry.synonyms.first(4).each do |syn| %>
+              <span class="bg-red-50 text-red-800 text-xs px-2 py-0.5 rounded-full"><%= syn.gsub(/[.\;]+\z/, '') %></span>
+            <% end %>
+            <% if entry.synonyms.size > 4 %>
+              <span class="text-xs text-gray-400">+<%= entry.synonyms.size - 4 %> more</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if current_user.admin? %>
+  <script>
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+    function startEdit(displayEl) {
+      if (displayEl.querySelector('input')) return;
+      const card = displayEl.closest('[data-entry-id]');
+      const url  = card.dataset.updateUrl;
+      const current = displayEl.textContent.trim();
+      const placeholder = current === 'Add translation…' ? '' : current;
+
+      const input = document.createElement('input');
+      input.type  = 'text';
+      input.value = placeholder;
+      input.className = 'text-sm border-b border-red-300 outline-none w-full text-gray-700';
+      input.placeholder = 'English translation…';
+      displayEl.replaceWith(input);
+      input.focus();
+
+      function save() {
+        fetch(url, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+          body: JSON.stringify({ english: input.value })
+        })
+        .then(r => r.json())
+        .then(data => {
+          const span = document.createElement('span');
+          span.className = 'english-display text-sm text-gray-500 italic cursor-pointer hover:text-red-600';
+          span.textContent = data.english || 'Add translation…';
+          span.onclick = () => startEdit(span);
+          input.replaceWith(span);
+        });
+      }
+
+      input.addEventListener('blur', save);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+    }
+  </script>
+  <% end %>
+<% end %>

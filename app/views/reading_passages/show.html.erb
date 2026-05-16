@@ -1,0 +1,124 @@
+<% content_for :title, @passage.title %>
+<% content_for :head do %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .tamil-text { font-family: 'Noto Sans Tamil', sans-serif; }
+    .annotated-word {
+      cursor: pointer;
+      border-bottom: 2px solid #fca5a5;
+      transition: background 0.15s;
+      border-radius: 2px;
+      padding-bottom: 1px;
+    }
+    .annotated-word:hover { background: #fef2f2; }
+    .annotated-word.active { background: #fee2e2; border-bottom-color: #b91c1c; }
+  </style>
+<% end %>
+
+<div class="mb-6">
+  <%= link_to '← Back to Reading', reading_passages_path, class: "text-sm text-gray-400 hover:text-red-700" %>
+</div>
+
+<div class="max-w-3xl mx-auto">
+
+  <!-- Passage header -->
+  <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-4">
+    <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
+      <span class="text-xs font-semibold uppercase tracking-wide px-3 py-1 rounded-full
+        <%= @passage.level == 'beginner' ? 'bg-green-50 text-green-700' : @passage.level == 'intermediate' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700' %>">
+        <%= @passage.level.capitalize %>
+      </span>
+      <div class="flex gap-2">
+        <button onclick="toggleTranslation()"
+          class="text-sm text-gray-500 hover:text-red-700 border border-gray-200 px-3 py-1.5 rounded-lg transition">
+          Translation
+        </button>
+        <button onclick="speak(document.getElementById('passageText').textContent)"
+          class="text-sm text-gray-400 hover:text-red-700 border border-gray-200 px-3 py-1.5 rounded-lg transition">
+          🔊 Hear
+        </button>
+      </div>
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-6"><%= @passage.title %></h1>
+
+    <!-- Instruction -->
+    <% if @passage.annotations.present? %>
+      <p class="text-xs text-gray-400 mb-4">
+        Tap any <span class="border-b-2 border-red-300 pb-0.5">underlined word</span> to see its meaning and grammar role.
+      </p>
+    <% end %>
+
+    <!-- Tamil text -->
+    <div id="passageText"
+         class="tamil-text text-xl leading-loose text-gray-800 font-medium mb-6">
+      <%= annotated_passage(@passage.content, @passage.annotations) %>
+    </div>
+
+    <!-- Translation -->
+    <div id="translation" class="hidden border-t border-gray-100 pt-5">
+      <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">English Translation</h3>
+      <div class="text-gray-600 leading-relaxed whitespace-pre-line text-sm">
+        <%= @passage.translation %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Word popup (appears below passage when a word is clicked) -->
+  <div id="wordPanel" class="hidden bg-white rounded-2xl shadow-md border border-gray-100 p-5 mb-4 transition-all">
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1">
+        <div id="wordTamil" class="tamil-text text-3xl font-bold text-red-700 mb-1"></div>
+        <div id="wordMeaning" class="text-lg text-gray-800 font-medium mb-1"></div>
+        <div id="wordRole" class="text-sm text-gray-400 italic"></div>
+      </div>
+      <div class="flex gap-2 mt-1">
+        <button onclick="speakWord()" class="text-gray-300 hover:text-red-700 transition text-xl">🔊</button>
+        <button onclick="closePanel()" class="text-gray-300 hover:text-gray-600 transition text-lg leading-none">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="flex justify-between mt-4 text-sm text-gray-500">
+    <%= link_to '← Back to Reading', reading_passages_path, class: "hover:text-red-700" %>
+    <%= link_to 'Take a Quiz →', quizzes_path, class: "bg-red-700 text-white px-5 py-2 rounded-lg hover:opacity-90 transition" %>
+  </div>
+
+</div>
+
+<script>
+  let currentWord = '';
+
+  // Wire up all annotated words
+  document.querySelectorAll('.annotated-word').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.annotated-word').forEach(w => w.classList.remove('active'));
+      el.classList.add('active');
+
+      currentWord = el.textContent.trim();
+      const meaning = el.dataset.meaning;
+      const role    = el.dataset.role;
+
+      document.getElementById('wordTamil').textContent   = currentWord;
+      document.getElementById('wordMeaning').textContent = meaning;
+      document.getElementById('wordRole').textContent    = role;
+      document.getElementById('wordPanel').classList.remove('hidden');
+
+      speak(currentWord);
+    });
+  });
+
+  function speakWord() { speak(currentWord); }
+
+  function closePanel() {
+    document.getElementById('wordPanel').classList.add('hidden');
+    document.querySelectorAll('.annotated-word').forEach(w => w.classList.remove('active'));
+  }
+
+  function toggleTranslation() {
+    document.getElementById('translation').classList.toggle('hidden');
+  }
+</script>

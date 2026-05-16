@@ -1,0 +1,74 @@
+<% content_for :title, "Vocabulary" %>
+
+<div class="mb-6">
+  <h1 class="text-3xl font-bold text-gray-800">Vocabulary</h1>
+  <p class="text-gray-500 mt-1">Browse words by category and mark them as learned</p>
+</div>
+
+<!-- Category Tabs -->
+<div class="flex flex-wrap gap-2 mb-6">
+  <% @categories.each do |cat| %>
+    <%= link_to words_path(category: cat),
+          class: "px-4 py-2 rounded-full text-sm font-medium transition #{@category == cat ? 'bg-red-700 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-red-300'}" do %>
+      <%= cat.capitalize %>
+    <% end %>
+  <% end %>
+</div>
+
+<% nigandu_cat = { "animals" => "animals", "places" => "geography", "nature" => "plants" }[@category] %>
+<% if nigandu_cat %>
+  <div class="mb-4 flex items-center gap-2 text-sm text-gray-500">
+    <span>Classical Tamil synonyms for this theme:</span>
+    <%= link_to "Explore in நிகண்டு →", nigandu_index_path(category: nigandu_cat),
+          class: "text-red-700 hover:underline font-medium" %>
+  </div>
+<% end %>
+
+<!-- Words Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <% @words.each do |word| %>
+    <% learned = @learned_ids.include?(word.id) %>
+    <div class="bg-white rounded-2xl p-5 shadow-sm border-2 transition-all
+      <%= learned ? 'border-green-400' : 'border-gray-100' %>">
+      <div class="flex items-start justify-between mb-1">
+        <div class="text-3xl font-bold text-red-700"><%= word.tamil %></div>
+        <button onclick="speak('<%= word.tamil %>')" class="text-gray-300 hover:text-red-700 transition text-xl" title="Hear pronunciation">🔊</button>
+      </div>
+      <div class="text-lg font-semibold text-gray-800"><%= word.english %></div>
+      <div class="text-sm text-gray-400 italic mb-4">(<%= word.pronunciation %>)</div>
+      <button
+        onclick="markWordLearned(this, <%= word.id %>)"
+        data-learned="<%= learned %>"
+        class="w-full py-2 rounded-lg text-sm font-medium transition
+          <%= learned ? 'bg-green-100 text-green-700 cursor-default' : 'bg-red-50 text-red-700 hover:bg-red-100' %>">
+        <%= learned ? '✓ Learned' : 'Mark as Learned' %>
+      </button>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function markWordLearned(btn, wordId) {
+    if (btn.dataset.learned === 'true') return;
+
+    fetch('/user_words', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ word_id: wordId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.learned) {
+        btn.dataset.learned = 'true';
+        btn.textContent = '✓ Learned';
+        btn.classList.remove('bg-red-50', 'text-red-700', 'hover:bg-red-100');
+        btn.classList.add('bg-green-100', 'text-green-700', 'cursor-default');
+        btn.closest('div').classList.add('border-green-400');
+        btn.closest('div').classList.remove('border-gray-100');
+      }
+    });
+  }
+</script>

@@ -1,0 +1,5 @@
+class AddAnnotationsToReadingPassages < ActiveRecord::Migration[8.1]
+  def change
+    add_column :reading_passages, :annotations, :jsonb, default: {}
+  end
+end

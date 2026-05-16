@@ -1,0 +1,6 @@
+vanakkam_meaning:
+  question: What does வணக்கம் mean?
+  options: '["Hello", "Goodbye", "Thank you", "Please"]'
+  correct_index: 0
+  level: beginner
+  category: vocabulary
